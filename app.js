@@ -103,19 +103,6 @@
   }
 
   // ---- 友人推薦・居酒屋候補・雨のDAY2（共通部品） ----
-  function friendCard(){
-    const F = window.FRIEND; if (!F) return "";
-    return `<div class="card"><h2>友人からの推薦（台南在住の方より）</h2>
-      <div class="muted small">${esc(F.source)}</div>
-      <p class="small" style="margin:6px 0 8px">${esc(F.lead)}</p>
-      <h3>市内の4件＝今回のコースに入れた</h3>
-      <div class="spotchips">${F.city.map(spotChip).join("")}</div>
-      <div class="muted small" style="margin-top:6px">${esc(F.already)}</div>
-      <h3>郊外の4件＝今回は候補どまり</h3>
-      <div class="spotchips">${F.far.map(spotChip).join("")}</div>
-      <div class="judgebox"><b>判断</b>${esc(F.farVerdict)}</div>
-      <details class="acc"><summary>それでも行くなら（丸1日コースの形）</summary><div class="body"><ul class="plain small">${F.farIf.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="muted small">${esc(F.next)}</div></div></details></div>`;
-  }
   function izakayaCard(){
     const Z = window.IZAKAYA; if (!Z) return "";
     const rows = Z.rows.map(r => {
@@ -171,7 +158,6 @@
         <div class="btnrow"><a class="btn" href="${mapsUrl(TRIP.hotel.addr)}" target="_blank" rel="noopener">宿をGoogleマップで</a></div>
       </div>
       <div class="card"><h2>予約・手続きの状態</h2><div class="kv">${statusRows}</div></div>
-      ${friendCard()}
       <div class="card"><h2>この旅の方針（3行）</h2><ul class="plain">${TRIP.policy.map(p=>`<li>${esc(p)}</li>`).join("")}</ul></div>
       <div class="card"><h2>3日間の流れ</h2>
         ${DAYS.map(d=>`<h3>${esc(d.label)}　${esc(d.title)}</h3><div class="wxline ${d.weather.mark}">${esc(d.weather.text)}</div>`).join("")}
