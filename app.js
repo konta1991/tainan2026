@@ -102,6 +102,45 @@
     return `<button class="spot" data-spot="${s.id}">${ph}<div class="in"><h3>${esc(s.name)}</h3><div class="meta">${esc(meta)}</div>${cl?`<span class="tag ${closedToday(s)?"warn":""}">${esc(cl)}${closedToday(s)?"・今日休み":""}</span>`:""}<div class="desc">${esc(s.desc)}</div></div></button>`;
   }
 
+  // ---- 友人推薦・居酒屋候補・雨のDAY2（共通部品） ----
+  function friendCard(){
+    const F = window.FRIEND; if (!F) return "";
+    return `<div class="card"><h2>友人からの推薦（台南在住の方より）</h2>
+      <div class="muted small">${esc(F.source)}</div>
+      <p class="small" style="margin:6px 0 8px">${esc(F.lead)}</p>
+      <h3>市内の4件＝今回のコースに入れた</h3>
+      <div class="spotchips">${F.city.map(spotChip).join("")}</div>
+      <div class="muted small" style="margin-top:6px">${esc(F.already)}</div>
+      <h3>郊外の4件＝今回は候補どまり</h3>
+      <div class="spotchips">${F.far.map(spotChip).join("")}</div>
+      <div class="judgebox"><b>判断</b>${esc(F.farVerdict)}</div>
+      <details class="acc"><summary>それでも行くなら（丸1日コースの形）</summary><div class="body"><ul class="plain small">${F.farIf.map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="muted small">${esc(F.next)}</div></div></details></div>`;
+  }
+  function izakayaCard(){
+    const Z = window.IZAKAYA; if (!Z) return "";
+    const rows = Z.rows.map(r => {
+      const s = SPOT[r.id]; if (!s) return "";
+      const cl = closedLabel(s);
+      return `<tr><td><button class="linklike" data-spot="${r.id}">${esc(s.name)}</button><div class="muted small">${esc(r.type)}${s.walk&&s.walk!=="—"?"・"+esc(s.walk):""}</div></td>
+        <td>${esc(r.why)}<div class="muted small">${esc(r.note)}${cl?`　<span class="tag ${closedToday(s)?"warn":""}">${esc(cl)}${closedToday(s)?"・今日休み":""}</span>`:""}</div></td></tr>`;
+    }).join("");
+    return `<div class="card"><h2>1日目の夜：居酒屋で腰を据えるなら</h2>
+      <div class="small">${esc(Z.lead)}</div>
+      <table style="margin-top:8px"><tr><th style="width:42%">店</th><th>選ぶ理由</th></tr>${rows}</table>
+      <div class="pickbox"><b>おすすめの型</b>　${esc(Z.pick)}</div>
+      <div class="muted small" style="margin-top:6px">${esc(Z.warn)}</div></div>`;
+  }
+  function rainday2Card(){
+    const R = window.RAINDAY2; if (!R) return "";
+    const items = R.items.map(it => `<div class="alt-item"><b>${esc(it.t)}</b><div><h3>${esc(it.title)}</h3><p>${esc(it.body)}</p>${it.spots&&it.spots.length?`<div class="spotchips">${it.spots.map(spotChip).join("")}</div>`:""}</div></div>`).join("");
+    return `<div class="card altplan"><h2>雨・四草なしのDAY2（丸1日の差し替え版）</h2>
+      <div class="small">${esc(R.lead)}</div>
+      <div class="judgebox"><b>行く／やめるの決め方</b><ul class="plain small">${R.judge.map(x=>`<li>${esc(x)}</li>`).join("")}</ul></div>
+      <div class="altlist">${items}</div>
+      <table style="margin-top:10px"><tr><th style="width:38%">捨てるもの</th><th>置き換え</th></tr>${R.swap.map(r=>`<tr><td>${esc(r.from)}</td><td>${esc(r.to)}</td></tr>`).join("")}</table>
+      <div class="muted small" style="margin-top:6px">${esc(R.cost)}</div></div>`;
+  }
+
   // ---- HOME ----
   function renderHome(){
     const days = ["2026-08-29","2026-08-30","2026-08-31"];
@@ -131,6 +170,7 @@
         <div class="btnrow"><a class="btn" href="${mapsUrl(TRIP.hotel.addr)}" target="_blank" rel="noopener">宿をGoogleマップで</a></div>
       </div>
       <div class="card"><h2>予約・手続きの状態</h2><div class="kv">${statusRows}</div></div>
+      ${friendCard()}
       <div class="card"><h2>この旅の方針（3行）</h2><ul class="plain">${TRIP.policy.map(p=>`<li>${esc(p)}</li>`).join("")}</ul></div>
       <div class="card"><h2>3日間の流れ</h2>
         ${DAYS.map(d=>`<h3>${esc(d.label)}　${esc(d.title)}</h3><div class="wxline ${d.weather.mark}">${esc(d.weather.text)}</div>`).join("")}
@@ -199,6 +239,8 @@
       <div class="rain-toggle"><div><b>雨モード</b><div class="muted small">雨の差し替えがある行だけを強調</div></div><button class="switch ${rainMode?"on":""}" id="rainsw" aria-label="雨モード"></button></div>
       <div class="day-head"><h2>${esc(d.title)}</h2><div class="muted small">${esc(d.lead)}</div><div class="wxline ${d.weather.mark}">${esc(d.weather.text)}</div>${ni>=0?`<div class="btnrow"><button class="btn red" id="gonow">いまの予定へ</button></div>`:""}</div>
       <div class="tl ${rainMode?"rainmode":""}">${items}</div>
+      ${curDay==="sat" ? izakayaCard() : ""}
+      ${curDay==="sun" ? rainday2Card() : ""}
       ${d.branches ? `<div class="card"><h2>メモ・分岐</h2><ul class="plain">${d.branches.map(b=>`<li>${esc(b)}</li>`).join("")}</ul></div>` : ""}
       <div class="card"><h2>雨天の差し替え表</h2><table><tr><th>予定</th><th>差し替え</th></tr>${RAIN.map(r=>`<tr><td>${esc(r.from)}</td><td>${esc(r.to)}${r.ids.length?`<div class="spotchips">${r.ids.map(spotChip).join("")}</div>`:""}</td></tr>`).join("")}</table></div>`;
     $$("#plan .daytabs button").forEach(b => b.addEventListener("click", () => setDay(b.dataset.day)));
@@ -293,7 +335,11 @@
           <tr><td>林百貨屋上（鳥居×夕焼け）</td><td>17:30〜18:30</td></tr><tr><td>神農街（提灯×青い空）</td><td>18:15〜19:00／人少なめは21時以降</td></tr><tr><td>祀典武廟の朱壁</td><td>18:30〜21:00（20時以降ほぼ無人）</td></tr><tr><td>河樂廣場の水鏡</td><td>18:00〜21:00</td></tr><tr><td>蝸牛巷（路地の斜光）</td><td>15:00〜18:00</td></tr></table></div>
       <div class="section-title">体験（1〜2個が適量）</div>
       <div class="card"><div class="small">日曜14:00〜16:00の酷暑タイムが第一候補。茶芸・線香・藍染・又又美はすべて屋内＝雨の日の受け皿にもなる。残りは「次回の台南」に取っておく。</div></div>
-      <div class="spot-list">${exps.map(spotCard).join("")}</div>`;
+      <div class="spot-list">${exps.map(spotCard).join("")}</div>
+      <div class="section-title">郊外・日帰り（友人推薦・今回は候補）</div>
+      <div class="card"><div class="small">${esc((window.FRIEND&&window.FRIEND.farVerdict)||"")}</div>
+        <details class="acc" style="margin-top:6px"><summary>それでも行くなら（丸1日コースの形）</summary><div class="body"><ul class="plain small">${((window.FRIEND&&window.FRIEND.farIf)||[]).map(x=>`<li>${esc(x)}</li>`).join("")}</ul><div class="muted small">${esc((window.FRIEND&&window.FRIEND.next)||"")}</div></div></details></div>
+      <div class="spot-list">${SPOTS.filter(s=>s.cat==="trip").map(spotCard).join("")}</div>`;
   }
 
   // ---- TIPS ----
