@@ -1,0 +1,13 @@
+{
+  "name": "台南 食と路地と提灯の旅 2026",
+  "short_name": "台南2026",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#faf6ee",
+  "theme_color": "#1b2a41",
+  "lang": "ja",
+  "icons": [
+    { "src": "img/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "img/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}
