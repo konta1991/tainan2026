@@ -1,5 +1,5 @@
 /* 旅先の弱い電波でも開けるように、同一オリジンの資産をキャッシュする（network-first）。 */
-const CACHE = "tainan2026-v2";
+const CACHE = "tainan2026-v3";
 const CORE = ["./", "./index.html", "./style.css", "./app.js", "./data.js", "./geo.js"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(CORE)).then(() => self.skipWaiting())); });
 self.addEventListener("activate", e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== CACHE).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
